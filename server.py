@@ -19,7 +19,9 @@ distributor = EventDistributor()
 
 import socket
 self_ip = socket.gethostbyname(socket.gethostname())
-print('self ip is: %s' %self_ip)
+print('self ip is: %s; added to address booth.' %self_ip)
+
+address_booth.update({self_ip: user_config['username']})
 
 def scan_net():
     from progress.bar import Bar
@@ -70,6 +72,8 @@ def on_sync_booths(payload: dict):
         
     if self_ip != payload.get('from', ''):
         peers_found = True
+        
+        print('peer found.')
     else:
         print('Working just fine: scanned yourself.')
     
@@ -117,10 +121,10 @@ def on_chat_msg(payload: dict):
 import os
 import sys
 def refresh_chats():
-    if sys.platform != 'win32':
-        os.system('clear')
-    else:
-        os.system('cls')
+    # if sys.platform != 'win32':
+    #     os.system('clear')
+    # else:
+    #     os.system('cls')
     for msg in chats:
         print(msg)
     print('>_', end='\t')
@@ -146,9 +150,11 @@ if __name__ == '__main__':
     while True:
         refresh_chats()
         msg = input()
-        if msg == '\\q':
+        if msg == '/quit':
             server.stop()
             break
+        elif msg[:5] == '/exec':
+            exec(msg[6:])
         broadcast({
             'action': 'chat-msg',
             'payload': {
